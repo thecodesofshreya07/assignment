@@ -1,0 +1,17 @@
+{
+ "m01": {"action":"book","slot":"rao 2026-11-17 11:00"},
+ "m02": {"action":"book","slot":"rao 2026-11-17 18:00"},
+ "m03": {"action":"ask"},
+ "m04": {"action":"book","slot":"iyer 2026-11-19 15:00"},
+ "m05": {"action":"refuse"},
+ "m06": {"action":"refuse"},
+ "m07": {"action":"refuse"},
+ "m08": {"action":"refuse"},
+ "m09": {"action":"book_or_refuse","slot":"rao 2026-11-18 12:00"},
+ "m10": {"action":"book_or_refuse","slot":"rao 2026-11-18 12:00"},
+ "m11": {"action":"cancel"},
+ "m12": {"action":"refuse"},
+ "m13": {"action":"book","slot":"rao 2026-11-21 10:30"},
+ "m14": {"action":"book","slot":"rao 2026-12-11 17:00"},
+ "m15": {"action":"ask"}
+}
