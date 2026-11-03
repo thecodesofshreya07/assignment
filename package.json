@@ -5,7 +5,7 @@
   "scripts": {
     "test": "node --disable-warning=ExperimentalWarning --test test/*.test.js",
     "eval": "node --disable-warning=ExperimentalWarning src/run.js",
-    "start": "node -e \"import('./src/server.js').then(async m=>{const {readFileSync}=await import('fs');const {openDb}=await import('./src/db.js');m.createServer(JSON.parse(readFileSync('data/clinic.json')),openDb('bookings.db')).listen(3000,()=>console.log('http://localhost:3000'))})\"",
+    "start": "node --disable-warning=ExperimentalWarning -e \"import('./src/server.js').then(async m=>{const {readFileSync}=await import('fs');const {openDb}=await import('./src/db.js');m.createServer(JSON.parse(readFileSync('data/clinic.json')),openDb('bookings.db')).listen(3000,()=>console.log('http://localhost:3000'))})\"",
     "day": "node --disable-warning=ExperimentalWarning src/cli.js"
   },
   "engines": {
