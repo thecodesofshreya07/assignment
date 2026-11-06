@@ -66,6 +66,13 @@ export function geminiLlm(clinic, model = process.env.GEMINI_MODEL || 'gemini-2.
   };
 }
 
+export function getLlm(clinic) {
+  if (process.env.PARSER === 'mock') return mockLlm(clinic);
+  if (process.env.GROQ_API_KEY) return groqLlm(clinic);
+  if (process.env.GEMINI_API_KEY) return geminiLlm(clinic);
+  return mockLlm(clinic);
+}
+
 //when not using api key
 const weekDay = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
 const month = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };

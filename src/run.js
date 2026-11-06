@@ -2,7 +2,7 @@ import { readFileSync, rmSync } from 'node:fs';
 import { openDb } from './db.js';
 import { createServer } from './server.js';
 import { makeClient } from './client.js';
-import { understand, groqLlm, geminiLlm, mockLlm } from './understand.js';
+import { understand, getLlm } from './understand.js';
 import { decide } from './decide.js';
 
 const rd = (f) => JSON.parse(readFileSync(new URL('../data/' + f, import.meta.url)));
@@ -14,10 +14,9 @@ db.exec('DELETE FROM bookings;');
 const server = createServer(clinic, db);
 await new Promise((r) => server.listen(0, r));
 const api = makeClient(`http://127.0.0.1:${server.address().port}`);
-const mock = process.env.PARSER === 'mock';
-const name = mock ? 'mock' : process.env.GROQ_API_KEY ? 'groq' : process.env.GEMINI_API_KEY ? 'gemini' : 'mock';
+const name = process.env.PARSER === 'mock' ? 'mock' : process.env.GROQ_API_KEY ? 'groq' : process.env.GEMINI_API_KEY ? 'gemini' : 'mock';
 const useLlm = name !== 'mock';
-const llm = { groq: () => groqLlm(clinic), gemini: () => geminiLlm(clinic), mock: () => mockLlm(clinic) }[name]();
+const llm = getLlm(clinic);
 console.log(`Parser: ${useLlm ? name + ' API' : 'MOCK rules (no API key)'}\n`);
 
 const handle = async (m) => {

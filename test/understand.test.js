@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { validate, understand } from '../src/understand.js';
+import { validate, understand, getLlm } from '../src/understand.js';
 const clinic = JSON.parse(readFileSync(new URL('../data/clinic.json', import.meta.url)));
 const opt = { delay: 0 };
 //checks whether AI response extraction and validation code works correctly.
@@ -21,4 +21,12 @@ test('retries then succeeds; stops after max tries and never throws', async () =
   let calls = 0;
   const r = await understand('x', clinic, async () => { calls++; throw new Error('boom'); }, opt);
   assert.equal(r.ok, false); assert.equal(calls, 3);
+});
+test('getLlm respects PARSER=mock switch', async () => {
+  process.env.PARSER = 'mock';
+  const parser = getLlm(clinic);
+  const res = JSON.parse(await parser('kal shaam 6 baje Dr Rao milenge?'));
+  assert.equal(res.intent, 'book');
+  assert.equal(res.doctor, 'rao');
+  delete process.env.PARSER;
 });
