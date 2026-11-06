@@ -1,7 +1,7 @@
-import { DatabaseSync } from 'node:sqlite'; // built in (Node 22.13+), zero dependencies
+import { DatabaseSync } from 'node:sqlite';
 
 export function openDb(path = ':memory:') {
-  const db = new DatabaseSync(path);
+  const db = new DatabaseSync(path); //db connectionm
   db.exec('PRAGMA busy_timeout = 5000; PRAGMA journal_mode = WAL;');
   db.exec(`
     CREATE TABLE IF NOT EXISTS bookings (
@@ -13,9 +13,6 @@ export function openDb(path = ':memory:') {
       status     TEXT NOT NULL DEFAULT 'booked' CHECK (status IN ('booked','cancelled')),
       created_at TEXT NOT NULL
     );
-    -- THIS is what prevents double bookings: the database itself refuses a
-    -- second ACTIVE booking for the same doctor+date+time. Cancelled rows
-    -- do not count, so a cancelled slot can be booked again.
     CREATE UNIQUE INDEX IF NOT EXISTS one_active_booking_per_slot
       ON bookings (doctor_id, date, time) WHERE status = 'booked';
   `);
@@ -30,9 +27,9 @@ export function tryInsertBooking(db, { doctorId, date, time, phone }, createdAt)
       )
       .run(doctorId, date, time, phone, createdAt);
     return { ok: true, id: Number(info.lastInsertRowid) };
-  } catch (err) {
+  } catch (err) { //when already booked
     if (err.errcode === 2067 || /UNIQUE constraint/.test(err.message)) return { ok: false, reason: 'SLOT_TAKEN' };
-    throw err; // anything else is a real bug, do not hide it
+    throw err; // anything else
   }
 }
 
@@ -59,11 +56,9 @@ export function bookingsForDate(db, date) {
     .all(date);
 }
 
-// Cancel only if the booking belongs to this phone number. One atomic UPDATE,
-// so ownership check and cancellation cannot be separated.
 export function cancelOwnBooking(db, id, phone) {
   const info = db
     .prepare("UPDATE bookings SET status='cancelled' WHERE id=? AND phone=? AND status='booked'")
     .run(id, phone);
-  return info.changes === 1;
+  return info.changes === 1; //checks whether exactly one row was updated.
 }
