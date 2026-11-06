@@ -1,8 +1,3 @@
-// RULES LIVE HERE, in plain code. The AI never decides any of this.
-// Everything is "clinic local time" (Asia/Kolkata, no DST), kept as plain
-// strings: date = "YYYY-MM-DD", time = "HH:MM". String comparison works
-// because the formats are fixed-width, so we avoid timezone bugs entirely.
-
 const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
