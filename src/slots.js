@@ -57,14 +57,14 @@ export function isPast(clinic, date, time) {
 }
 
 export function checkSlotRules(clinic, doctorId, date, time) {
-  if (!getDoctor(clinic, doctorId)) return { ok: false, reason: 'no such doctor' };
-  if (!isRealDate(date) || !isValidTime(time)) return { ok: false, reason: 'no real date or time' };
-  if (clinic.closed_dates.includes(date)) return { ok: false, reason: 'closed on this day' };
+  if (!getDoctor(clinic, doctorId)) return { ok: false, reason: 'UNKNOWN_DOCTOR' };
+  if (!isRealDate(date) || !isValidTime(time)) return { ok: false, reason: 'BAD_INPUT' };
+  if (clinic.closed_dates.includes(date)) return { ok: false, reason: 'CLOSED_DATE' };
   const windows = getDoctor(clinic, doctorId).hours[weekdayKey(date)] || [];
-  if (windows.length === 0) return { ok: false, reason: 'doctor not working' };
+  if (windows.length === 0) return { ok: false, reason: 'DOCTOR_NOT_WORKING' };
   if (!allSlotsForDay(clinic, doctorId, date).includes(time)) {
-    return { ok: false, reason: 'slot not in working hrs' };
+    return { ok: false, reason: 'OUTSIDE_HOURS_OR_OFF_GRID' };
   }
-  if (isPast(clinic, date, time)) return { ok: false, reason: 'in the past' };
+  if (isPast(clinic, date, time)) return { ok: false, reason: 'IN_THE_PAST' };
   return { ok: true };
 }

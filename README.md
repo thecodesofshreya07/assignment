@@ -4,31 +4,29 @@ Built with Node.js 22.13+ using built-in `node:sqlite`. Zero npm dependencies ne
 
 ### Quick Start (under 2 minutes)
 
-1. **Run tests** (verifies rules, parallel race conditions, and parser validation):
+1. **Configure Environment** (Optional):
+   Create a `.env` file in the project root with your Groq API key:
+   ```env
+   GROQ_API_KEY=your_key_here
+   ```
+   *(If omitted, it automatically falls back to the built-in rule-based mock parser).*
+
+2. **Run tests** (verifies rules, parallel race conditions, and parser validation):
    ```bash
    npm test
    ```
 
-2. **Evaluate the 15 messages**:
-   - Using default mock parser (no API key needed):
-     ```bash
-     npm run eval
-     ```
-   - Using Groq LLM (`openai/gpt-oss-120b`):
-     ```bash
-     # Linux / macOS
-     GROQ_API_KEY=your_key npm run eval
+3. **Evaluate the 15 messages**:
+   ```bash
+   npm run eval
+   ```
 
-     # Windows PowerShell
-     $env:GROQ_API_KEY="your_key"; npm run eval
-     ```
-
-3. **Receptionist view for a day**:
+4. **Receptionist view for a day**:
    ```bash
    npm run day -- 2026-11-18
    ```
 
-4. **Run API server only**:
+5. **Run API server & receptionist web page** (visit http://localhost:3000):
    ```bash
    npm start
    ```
