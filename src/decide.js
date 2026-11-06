@@ -1,11 +1,10 @@
 import { nowLocal } from './slots.js';
 
-// CODE decides what happens; the AI output is just validated input.
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const drName = (c, id) => c.doctors.find((d) => d.id === id)?.name ?? id;
 
-export function fmt(c, { doctorId, date, time }) {
+export function fmt(c, { doctorId, date, time }) { //formating fn 
   const [y, m, d] = date.split('-').map(Number);
   let s = `${DAYS[new Date(Date.UTC(y, m - 1, d)).getUTCDay()]} ${d} ${MON[m - 1]}`;
   if (time) { const [h, mi] = time.split(':').map(Number); s += `, ${h % 12 || 12}:${String(mi).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`; }
@@ -19,7 +18,7 @@ export async function decide(api, clinic, msg, u) {
   if (!u.ok) return R('ask', "Sorry, I couldn't understand that. Which day, time and doctor would you like?");
   const p = u.parsed;
   const ids = p.doctor ? [p.doctor] : clinic.doctors.map((d) => d.id);
-  const near = async (date, time) => { // up to 3 REAL free slots near the request
+  const near = async (date, time) => {
     const seen = new Set(), out = [];
     const lists = [];
     if (p.doctor) lists.push(await api.nearest({ doctor: p.doctor, date, time, limit: 2 }));
