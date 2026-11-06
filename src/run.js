@@ -8,8 +8,10 @@ import { decide } from './decide.js';
 const rd = (f) => JSON.parse(readFileSync(new URL('../data/' + f, import.meta.url)));
 const clinic = rd('clinic.json'), messages = rd('messages.json'), expected = rd('expected.json');
 const dbPath = 'bookings.db';
-for (const s of ['', '-wal', '-shm']) rmSync(dbPath + s, { force: true }); //Deletes old database files before starting
-const db = openDb(dbPath), server = createServer(clinic, db);
+try { for (const s of ['', '-wal', '-shm']) rmSync(dbPath + s, { force: true }); } catch {}
+const db = openDb(dbPath);
+db.exec('DELETE FROM bookings;');
+const server = createServer(clinic, db);
 await new Promise((r) => server.listen(0, r));
 const api = makeClient(`http://127.0.0.1:${server.address().port}`);
 const mock = process.env.PARSER === 'mock';
@@ -18,23 +20,24 @@ const useLlm = name !== 'mock';
 const llm = { groq: () => groqLlm(clinic), gemini: () => geminiLlm(clinic), mock: () => mockLlm(clinic) }[name]();
 console.log(`Parser: ${useLlm ? name + ' API' : 'MOCK rules (no API key)'}\n`);
 
-const handle = async (m) => ({ m, ...(await decide(api, clinic, m, await understand(m.text, clinic, llm, { delay: useLlm ? 300 : 0 }))) }); //processes 1 patient msg 
+const handle = async (m) => {
+  const r = { m, ...(await decide(api, clinic, m, await understand(m.text, clinic, llm, { delay: useLlm ? 300 : 0 }))) };
+  console.log(`[${r.m.id}] ${r.m.from}: "${r.m.text}"\n  -> ${r.action.toUpperCase()}\n  ${r.reply.replace(/\n/g, '\n  ')}\n`);
+  return r;
+};
 const results = [];
-for (let i = 0; i < messages.length; i++) {
-  const processed = new Set();
-  for (const m of messages) {
-    if (processed.has(m.id)) continue;
-    const n = messages.find((x) => x.id === m.sent_at_same_time_as); //seraches entire msg array so that each msg is checks wuth other for same time 
-    if (n && !processed.has(n.id)) {
-      results.push(...(await Promise.all([handle(m), handle(n)])));
-      processed.add(n.id);
-    } else {
-      results.push(await handle(m));
-    }
-    processed.add(m.id);
+const processed = new Set();
+for (const m of messages) {
+  if (processed.has(m.id)) continue;
+  const n = messages.find((x) => x.id === m.sent_at_same_time_as);
+  if (n && !processed.has(n.id)) {
+    results.push(...(await Promise.all([handle(m), handle(n)])));
+    processed.add(n.id);
+  } else {
+    results.push(await handle(m));
   }
+  processed.add(m.id);
 }
-for (const r of results) console.log(`[${r.m.id}] ${r.m.from}: "${r.m.text}"\n  -> ${r.action.toUpperCase()}\n  ${r.reply.replace(/\n/g, '\n  ')}\n`);
 
 const key = (s) => s && `${s.doctorId} ${s.date} ${s.time}`;
 const raceBooked = results.filter((r) => expected[r.m.id].action === 'book_or_refuse' && r.action === 'book').length;
