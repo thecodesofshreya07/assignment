@@ -3,7 +3,7 @@ export function makeClient(base) {
   const j = async (p, o) => (await fetch(base + p, o)).json();
   const post = (p, b) => j(p, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(b) });
   const qs = (o) => new URLSearchParams(Object.entries(o).filter(([, v]) => v != null)).toString();
-  return {
+  return { //Returns an object containing all the functions that decide.js can use.
     slots: (doctor, date) => j(`/slots?${qs({ doctor, date })}`),
     nearest: (o) => j(`/nearest?${qs(o)}`),
     book: (b) => post('/book', b),

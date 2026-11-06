@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { allSlotsForDay, checkSlotRules, weekdayKey } from '../src/slots.js';
 import { openDb } from '../src/db.js';
 import { book, cancel, freeSlots, nearestFreeSlots } from '../src/service.js';
-
+////contains automated tests
 const clinic = JSON.parse(readFileSync(new URL('../data/clinic.json', import.meta.url)));
 
 test('weekday of fixed "now" (16 Nov 2026) is Monday', () => {

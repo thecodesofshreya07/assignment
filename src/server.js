@@ -2,8 +2,7 @@ import http from 'node:http';
 import { freeSlots, book, cancel, myBookings, nearestFreeSlots } from './service.js';
 import { bookingsForDate } from './db.js';
 import { isRealDate, isValidTime } from './slots.js';
-
-// Thin HTTP layer. All rules live in slots.js/service.js, not here.
+//receives requests, identifies endpoint, validates basic input and sends responses.
 export function createServer(clinic, db) {
   return http.createServer(async (req, res) => {
     const send = (code, obj) => { res.writeHead(code, { 'content-type': 'application/json' }); res.end(JSON.stringify(obj)); };

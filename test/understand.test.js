@@ -4,13 +4,13 @@ import { readFileSync } from 'node:fs';
 import { validate, understand } from '../src/understand.js';
 const clinic = JSON.parse(readFileSync(new URL('../data/clinic.json', import.meta.url)));
 const opt = { delay: 0 };
-
-test('validate rejects broken / wrong-typed / invented output', () => {
+//checks whether AI response extraction and validation code works correctly.
+test('validate rejects broken / wrong-typed / invented output', () => { //Invalid AI responses are rejected
   for (const bad of ['not json', '[]', 'null', { intent: 'delete_all' }, { intent: 'book', doctor: 'dr_evil' },
     { intent: 'book', date: '2026-02-30' }, { intent: 'book', time: '25:00' }, { intent: 'book', time: 1130 }, { intent: 'book', date: 20261117 }])
     assert.throws(() => validate(bad, clinic), undefined, JSON.stringify(bad));
 });
-test('validate accepts good output, fenced JSON, and drops extra keys', () => {
+test('validate accepts good output, removes JSON, and drops extra keys', () => { //Valid JSON is accepted and extra fields are removed
   assert.deepEqual(validate('```json\n{"intent":"book","date":"2026-11-17","time":"11:00","doctor":"rao","admin":true}\n```', clinic),
     { intent: 'book', date: '2026-11-17', time: '11:00', doctor: 'rao' });
 });

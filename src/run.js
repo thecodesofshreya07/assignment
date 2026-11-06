@@ -21,9 +21,18 @@ console.log(`Parser: ${useLlm ? name + ' API' : 'MOCK rules (no API key)'}\n`);
 const handle = async (m) => ({ m, ...(await decide(api, clinic, m, await understand(m.text, clinic, llm, { delay: useLlm ? 300 : 0 }))) }); //processes 1 patient msg 
 const results = [];
 for (let i = 0; i < messages.length; i++) {
-  const m = messages[i], n = messages[i + 1];
-  if (m.sent_at_same_time_as && n?.id === m.sent_at_same_time_as) { results.push(...(await Promise.all([handle(m), handle(n)]))); i++; }
-  else results.push(await handle(m));
+  const processed = new Set();
+  for (const m of messages) {
+    if (processed.has(m.id)) continue;
+    const n = messages.find((x) => x.id === m.sent_at_same_time_as); //seraches entire msg array so that each msg is checks wuth other for same time 
+    if (n && !processed.has(n.id)) {
+      results.push(...(await Promise.all([handle(m), handle(n)])));
+      processed.add(n.id);
+    } else {
+      results.push(await handle(m));
+    }
+    processed.add(m.id);
+  }
 }
 for (const r of results) console.log(`[${r.m.id}] ${r.m.from}: "${r.m.text}"\n  -> ${r.action.toUpperCase()}\n  ${r.reply.replace(/\n/g, '\n  ')}\n`);
 
