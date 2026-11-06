@@ -18,10 +18,7 @@
    ```bash
    npm start
    ``` 
-   In another terminal, test a direct API call for free slots:
-powershell
-curl "http://localhost:3000/slots?doctor=rao&date=2026-11-17"
-(Returns ["10:00","10:30","11:00",...] as JSON).
+
 ### Project Architecture
 - `src/slots.js`: Business rules (working hours, 30-min grid, closed dates, past dates, fixed `now`).
 - `src/db.js`: SQLite schema with partial unique index `(doctor_id, date, time) WHERE status = 'booked'` preventing race-condition double bookings.

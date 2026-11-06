@@ -81,7 +81,7 @@ export function mockLlm(clinic) {
       const y = m[3] ? (+m[3] < 100 ? 2000 + +m[3] : +m[3]) : year;
       out.date = iso(y, +m[2], +m[1]); s = s.replace(m[0], ' '); // dd/mm (India)
     } else if ((m = s.match(/\b(\d{1,2})\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\b/))) {
-      out.date = iso(year, MO[m[2]], +m[1]); s = s.replace(m[0], ' ');
+      out.date = iso(year, month[m[2]], +m[1]); s = s.replace(m[0], ' ');
     } else if (/\b(today|tonight|aaj)\b/.test(s)) out.date = today;
     else if (/\b(tomorrow|kal)\b/.test(s)) out.date = addDays(today, 1);
     else if (/\bnext\s+(sun|mon|tue|wed|thu|fri|sat)/.test(s)) out.date = null; // ambiguous -> ask

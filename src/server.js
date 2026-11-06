@@ -14,9 +14,10 @@ export function createServer(clinic, db) {
       if (route === 'GET /') {
         const d = q.get('date') || clinic.now.slice(0, 10);
         const rows = bookingsForDate(db, d);
+        const dates = db.prepare("SELECT DISTINCT date FROM bookings WHERE status='booked' ORDER BY date").all().map((r) => `<a href="/?date=${r.date}">${r.date}</a>`).join(' | ');
         const trs = rows.map((r) => `<tr><td>${r.time}</td><td>${clinic.doctors.find((x) => x.id === r.doctor_id)?.name}</td><td>${r.phone}</td></tr>`).join('');
         res.writeHead(200, { 'content-type': 'text/html' });
-        return res.end(`<h2>${clinic.clinic} - ${d}</h2><form><input type="date" name="date" value="${d}"><button>View</button></form><table border="1" cellpadding="5"><tr><th>Time</th><th>Doctor</th><th>Phone</th></tr>${trs || '<tr><td colspan="3">No bookings</td></tr>'}</table>`);
+        return res.end(`<h2>${clinic.clinic} - ${d}</h2><form><input type="date" name="date" value="${d}"><button>View</button></form><p><small>Dates with bookings: ${dates || 'none'}</small></p><table border="1" cellpadding="5"><tr><th>Time</th><th>Doctor</th><th>Phone</th></tr>${trs || '<tr><td colspan="3">No bookings</td></tr>'}</table>`);
       }
       if (route === 'GET /slots') return send(200, freeSlots(clinic, db, q.get('doctor'), needDate()));
       if (route === 'GET /nearest') {
